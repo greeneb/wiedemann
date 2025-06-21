@@ -140,7 +140,7 @@ class gf2matrix:
             matrix: A dense numpy array
             
         Returns:
-            A SparseMatrixGF2 equivalent to the input matrix
+            A gf2matrix equivalent to the input matrix
         """
         n_rows, n_cols = matrix.shape
         sparse_matrix = cls(n_rows, n_cols)
@@ -190,4 +190,4 @@ class gf2matrix:
     
     def __repr__(self):
         """Detailed string representation of the matrix"""
-        return f"SparseMatrixGF2({self.n_rows}, {self.n_cols}) with {len(self.entries)} non-zero entries"
+        return f"gf2matrix({self.n_rows}, {self.n_cols}) with {len(self.entries)} non-zero entries"

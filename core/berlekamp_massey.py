@@ -1,55 +1,60 @@
-class BerlekampMassey:
+import numpy as np
+import copy
+
+class bm:
     """
-    Implementation of the Berlekamp-Massey algorithm for finding the minimal polynomial
-    of a sequence over GF(2).
+    Implements the Berlekamp-Massey algorithm to find the shortest linear feedback shift register (LFSR) for a given sequence.
+    The algorithm is used to find the minimal polynomial that generates a given binary sequence over GF(2).
+    The minimal polynomial is the polynomial of the smallest degree that has the sequence as its coefficients.
     """
-    
+
     @staticmethod
     def find_minimal_polynomial(sequence):
         """
-        Apply the Berlekamp-Massey algorithm to find the minimal polynomial of a sequence.
-        
+        Find the minimal polynomial of a binary sequence using the Berlekamp-Massey algorithm.
+
         Args:
-            sequence: A list of binary values (0s and 1s)
-            
+            sequence: A binary sequence (list of 0s and 1s)
+
         Returns:
-            A list representing the minimal polynomial (connection polynomial)
+            The coefficients of the minimal polynomial as a list
         """
-        n = len(sequence)
-        C = [1]       # Current connection polynomial
-        B = [1]       # Copy of last connection polynomial for which a discrepancy was found
-        L = 0         # Length of current LFSR
-        m = 1         # Position of last discrepancy
-        b = 1         # Initial discrepancy
         
-        for N in range(n):
-            # Calculate discrepancy
-            d = sequence[N]
-            for i in range(1, L+1):
-                if i < len(C) and C[i] == 1 and N-i >= 0:
-                    d ^= sequence[N-i]
-            
-            if d == 1:  # If there is a discrepancy
-                # Save current connection polynomial
-                T = copy.copy(C)
-                
-                # Calculate new connection polynomial C(x) = C(x) - d/b * x^m * B(x)
-                # In GF(2), subtraction is the same as addition (XOR), and d/b is always 1 when d and b are 1
-                # So C(x) = C(x) + x^m * B(x)
-                while len(C) <= m + len(B) - 1:
-                    C.append(0)
-                    
-                for j in range(len(B)):
-                    C[j+m] ^= B[j]
-                    
-                if 2*L <= N:
-                    L = N + 1 - L
-                    B = copy.copy(T)
+    @staticmethod
+    def min_poly(sequence):
+        # Standard Berlekamp-Massey algorithm over GF(2)
+        N = len(sequence)
+        s = sequence
+        C = [1]         # connection polynomial
+        B = [1]         # last "best" copy of C
+        L = 0           # current LFSR length
+        m = 1           # steps since last update of B
+
+        for n in range(N):
+            # compute discrepancy d = s[n] + sum_{i=1..L} C[i]*s[n-i]
+            d = s[n]
+            for i in range(1, L + 1):
+                if i < len(C) and C[i]:
+                    d ^= s[n - i]
+
+            if d:  # non-zero discrepancy, adjust C
+                T = C.copy()  # save current C
+
+                # C = C + x^m * B
+                shift = m
+                if len(C) < len(B) + shift:
+                    C.extend([0] * (len(B) + shift - len(C)))
+                for j, coeff in enumerate(B):
+                    C[j + shift] ^= coeff
+
+                # update L, B, and reset m if needed
+                if 2 * L <= n:
+                    B = T
+                    L = n + 1 - L
                     m = 1
-                    b = d
                 else:
                     m += 1
             else:
                 m += 1
-        
+
         return C
