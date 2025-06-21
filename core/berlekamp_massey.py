@@ -9,19 +9,17 @@ class bm:
     """
 
     @staticmethod
-    def find_minimal_polynomial(sequence):
+    def min_poly(sequence):
         """
-        Find the minimal polynomial of a binary sequence using the Berlekamp-Massey algorithm.
+            Find the minimal polynomial of a binary sequence using the Berlekamp-Massey algorithm.
 
-        Args:
-            sequence: A binary sequence (list of 0s and 1s)
+            Args:
+                sequence: A binary sequence (list of 0s and 1s)
 
-        Returns:
-            The coefficients of the minimal polynomial as a list
+            Returns:
+                The coefficients of the minimal polynomial as a list
         """
         
-    @staticmethod
-    def min_poly(sequence):
         # Standard Berlekamp-Massey algorithm over GF(2)
         N = len(sequence)
         s = sequence
