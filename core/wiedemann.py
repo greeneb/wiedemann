@@ -1,14 +1,22 @@
 import numpy as np
 from berlekamp_massey import bm
+import galois
+
 # from gf2_linalg import GF2Vector, GF2Matrix
 from gf2 import gf2matrix
+
+# ===============================
+# [BL] We could use the library galois,
+# instead of implementing our own.
+# ===============================
+
 
 class wiedemann:
     """
     Implementation of Wiedemann's algorithm for solving linear systems over GF(2).
     This class provides methods to solve the equation Mw = 0 or Ax = b using Wiedemann's algorithm.
     """
-    
+
     @staticmethod
     def wiedemann_algorithm_1(A, b, max_passes=5, verbose=False):
         """
@@ -70,7 +78,7 @@ class wiedemann:
                 print(f"Accumulated solution y: {y}")
                 print(f"Next residual b_k: {b_k}")
                 print(f"Total degree d_k: {d_k}")
-        
+
         raise ValueError("Failed to find solution after max_passes")
 
     @staticmethod
@@ -89,30 +97,34 @@ class wiedemann:
         """
         n = A.n_rows
         assert A.n_cols == n, "Matrix A must be square"
-        assert len(b) == n, "Vector b must have the same length as the number of rows in A"
-        
+        assert (
+            len(b) == n
+        ), "Vector b must have the same length as the number of rows in A"
+
         # Step 1: Precompute and store A^i b for i in 0..2n-1
-        if verbose: print("Precomputing A^i b for i in 0..2n-1")
+        if verbose:
+            print("Precomputing A^i b for i in 0..2n-1")
         powers = [b.copy()]
         for _ in range(2 * n - 1):
             powers.append(A.apply(powers[-1]))
-            
-        # Step 2: Initializeaiton 
+
+        # Step 2: Initializeaiton
         k = 0
-        gk = [1] # g_0(z) = 1
-        
+        gk = [1]  # g_0(z) = 1
+
         while k < n and len(gk) < n + 1:
-            if verbose: print(f"\n--- Iteration {k + 1} ---")
-            
+            if verbose:
+                print(f"\n--- Iteration {k + 1} ---")
+
             uk = np.zeros(n, dtype=np.int8)
             uk[k] = 1
-            
+
             # Step 3: Form sequence s = (uk, A^i b) = uk * powers[i]
             s = [np.dot(uk, powers[i]) % 2 for i in range(2 * n)]
-            
+
             # Step 4: Apply gk(z) to s
             s_applied = wiedemann.apply_poly_to_sequence(gk, s)
-            
+
             # Step 5: Compute minimal polynomial fk+1
             fk1 = bm.min_poly(s_applied)
             if verbose:
@@ -120,33 +132,33 @@ class wiedemann:
                 print(f"g_{k}(z): {gk}")
                 print(f"Sequence after applying g_k: {s_applied}")
                 print(f"Minimal polynomial f_{k+1}(z): {fk1}")
-                
+
             # Step 6: Update gk
             gk = wiedemann.poly_mul(fk1, gk)
-            
+
             k += 1
-        
+
         # Step 7: compute x using f = g_k and powers of A^i b
         f = gk
         d = len(f) - 1
-        
+
         x = np.zeros(n, dtype=np.int8)
         for i in range(d + 1):
             if f[i]:
                 x ^= powers[i - 1]
-                
+
         if verbose:
             print(f"Final polynomial g_{k}(z): {f}")
             print(f"Solution x: {x}")
-        
+
         return x
-    
+
     @staticmethod
     def apply_poly_to_sequence(poly, sequence):
         """
         Multiply a polynomial (represented by coefficient list) with a sequence.
         Polynomial is applied as: conv(poly, sequence), truncated appropriately.
-        
+
         Args:
             poly: list of GF(2) coefficients, lowest degree first (e.g. [1, 0, 1] = 1 + z^2)
             sequence: list of elements over GF(2)
@@ -161,9 +173,9 @@ class wiedemann:
             for j, coeff in enumerate(poly):
                 if i + j < len(sequence):
                     acc ^= coeff * sequence[i + j]
-            result.append(acc % 2) # TODO: maybe mod 2?
+            result.append(acc % 2)  # TODO: maybe mod 2?
         return result
-    
+
     @staticmethod
     def poly_mul(p1, p2):
         """
@@ -171,7 +183,7 @@ class wiedemann:
         Args:
             p1: list of coefficients for the first polynomial (lowest degree first)
             p2: list of coefficients for the second polynomial (lowest degree first)
-            
+
         Returns:
             List of coefficients for the product polynomial (lowest degree first)
         """
@@ -183,30 +195,30 @@ class wiedemann:
                 if coeff2:
                     result[i + j] ^= 1
         return result
-        
+
     # @staticmethod
     # def solve(M, max_iter=None, verbose=True):
     #     """
     #     Wiedemann's algorithm for solving Mw = 0 over GF(2)
-        
+
     #     Inputs:
     #         M: n x n numpy array over GF(2)
     #         max_iter: maximum number of iterations (default: 2n)
-        
+
     #     Returns:
     #         w: n-dimensional numpy array over GF(2) such that Mw = 0, or None if no solution found
     #     """
     #     if isinstance(M, np.ndarray):
     #         M = gf2matrix.from_dense(M)
-        
+
     #     n = M.n_rows
 
     #     if max_iter is None:
     #         max_iter = 2 * M.n_rows
-        
+
     #     for attempt in range(1, max_iter + 1):
     #         if verbose: print(f"\nAttempt {attempt} with a different random vector x_base:")
-            
+
     #         # Generate a random vector u and build proper Krylov sequence S = [u, M·u, M^2·u, ...]
     #         x_base = np.random.randint(0, 2, n, dtype=np.int8)
     #         x = M.apply(x_base)
@@ -224,14 +236,14 @@ class wiedemann:
     #         q = bm.find_minimal_polynomial(S_y)
     #         print(S_y)
     #         print(q)
-            
+
     #         if verbose: print(f"Minimal polynomial: {q}") # TODO: polynomial tostring
-            
+
     #         # If the minimal polynomial is trivial, continue to the next attempt
     #         if len(q) <= 1:
     #             if verbose: print("Trivial minimal polynomial, trying another y vector.")
     #             continue
-            
+
     #         # Check if minimal polynomial annihilates scalar sequence S_y
     #         annihilates = True
     #         d = len(q) - 1
@@ -257,7 +269,7 @@ class wiedemann:
 
     #         # Verify Mw = 0
     #         Mw = M.apply(w)
-    #         if verbose: 
+    #         if verbose:
     #             print("Kernel vector w:")
     #             print(w)
     #             print("Verification: M * w =")
@@ -267,7 +279,6 @@ class wiedemann:
     #         if not np.any(Mw):
     #             if verbose: print(f"Success on attempt {attempt}!")
     #             return w
-
 
     # def wiedemann(A, b, max_iter=None):
     #     """
