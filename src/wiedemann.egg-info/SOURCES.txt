@@ -1,8 +1,16 @@
 pyproject.toml
+src/wiedemann/block_bm.py
+src/wiedemann/block_wiedemann.py
 src/wiedemann/scalar_bm.py
+src/wiedemann/scalar_wiedemann.py
+src/wiedemann/solver.py
 src/wiedemann.egg-info/PKG-INFO
 src/wiedemann.egg-info/SOURCES.txt
 src/wiedemann.egg-info/dependency_links.txt
 src/wiedemann.egg-info/requires.txt
 src/wiedemann.egg-info/top_level.txt
+tests/test_block_bm.py
+tests/test_block_wiedemann.py
 tests/test_scalar_bm.py
+tests/test_scalar_wiedemann.py
+tests/test_solver.py

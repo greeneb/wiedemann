@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "wiedemann"
+name = "Wiedemann"
 version = "0.1.0"
 description = "Scalar and Block Wiedemann solvers over GF(p) with Berlekamp–Massey"
 authors = [

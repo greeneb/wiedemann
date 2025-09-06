@@ -16,18 +16,17 @@ def block_berlekamp_massey(S, field):
     m = S[0].shape[0]
     n_terms = len(S)
 
-    # Choose L = m (block size heuristic)
+    # Choose L = m (heuristic)
     L = m
     if n_terms < 2 * L:
         raise ValueError("Need at least 2*L block terms for BBM")
 
-    # Build block Hankel matrix H of size (L) x ((L+1) * m*m)
-    # Each row corresponds to a flattened sequence of (L+1) blocks
+    # Build block Hankel matrix H of size (L*m) x ((L+1)*m*m)
     rows = []
     for i in range(L):
         row_blocks = []
         for j in range(L + 1):
-            block = S[i + j].view(np.ndarray).reshape(1, -1)  # flatten m×m → length m*m
+            block = S[i + j].view(np.ndarray).reshape(1, -1)
             row_blocks.append(block)
         row = np.hstack(row_blocks)
         rows.append(row)
@@ -55,8 +54,8 @@ def block_berlekamp_massey(S, field):
 
 def null_space_mod_p(A, field):
     """
-    Simple nullspace computation over GF(p) using Gaussian elimination.
-    Returns one nontrivial nullspace vector if it exists, else None.
+    Compute a nontrivial nullspace vector of matrix A over GF(p).
+    Returns a 1D field array of length n_cols, or None if trivial.
     """
     A = A.copy()
     n_rows, n_cols = A.shape
@@ -72,13 +71,10 @@ def null_space_mod_p(A, field):
                 break
         if pivot is None:
             continue
-        # Swap rows
         if pivot != row:
             A[[row, pivot], :] = A[[pivot, row], :]
-        # Normalize pivot row
         inv = field(1) / A[row, col]
         A[row, :] *= inv
-        # Eliminate other rows
         for r in range(n_rows):
             if r != row and A[r, col] != 0:
                 factor = A[r, col]
@@ -92,13 +88,16 @@ def null_space_mod_p(A, field):
     if not free_cols:
         return None
 
-    # Construct one nullspace vector by setting one free variable = 1
     ns_vec = field.Zeros(n_cols)
     free = free_cols[0]
     ns_vec[free] = 1
-    # Back substitution
+
+    # Back substitution: fill pivot cols
     for i, col in enumerate(reversed(pivots)):
         r = row - 1 - i
-        val = -sum((A[r, c] * ns_vec[c] for c in free_cols), field(0))
-        ns_vec[col] = val
+        val = field(0)
+        for c in free_cols:
+            val += A[r, c] * ns_vec[c]
+        ns_vec[col] = -val
+
     return ns_vec
