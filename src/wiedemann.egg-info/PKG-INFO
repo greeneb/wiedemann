@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: wiedemann
+Version: 0.1.0
+Summary: Scalar and Block Wiedemann solvers over GF(p) with Berlekamp–Massey
+Author-email: Benjamin Greene <ben.greene@duke.edu>, Bohan Lu <bohan.lu@duke.edu>
+License: MIT
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: numpy
+Requires-Dist: galois
+Requires-Dist: pytest

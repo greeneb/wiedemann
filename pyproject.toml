@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wiedemann"
+version = "0.1.0"
+description = "Scalar and Block Wiedemann solvers over GF(p) with Berlekamp–Massey"
+authors = [
+    { name="Benjamin Greene", email="ben.greene@duke.edu" },
+    { name="Bohan Lu", email="bohan.lu@duke.edu" }
+]
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "galois",
+    "pytest"
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
