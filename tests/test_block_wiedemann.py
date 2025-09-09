@@ -13,7 +13,6 @@ def test_small_singular_matrix_kernel():
     assert not np.all(w == 0)
     assert (A @ w == 0).all()
 
-
 def test_3x3_singular_matrix_kernel():
     GF = galois.GF(7)
     A = GF([[1, 2, 3],
@@ -24,7 +23,6 @@ def test_3x3_singular_matrix_kernel():
     assert w.shape == (3,)
     assert not np.all(w == 0)
     assert (A @ w == 0).all()
-
 
 def test_random_singular_matrix():
     GF = galois.GF(3)
@@ -38,7 +36,6 @@ def test_random_singular_matrix():
     assert w.shape == (4,)
     assert not np.all(w == 0)
     assert (A @ w == 0).all()
-
 
 @pytest.mark.xfail(reason="Block Wiedemann not yet generalized to nonsingular Ax=b case")
 def test_inhomogeneous_not_supported():

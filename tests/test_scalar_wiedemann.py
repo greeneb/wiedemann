@@ -16,7 +16,6 @@ def test_kernel_vector_exists_small_matrix():
     assert not np.all(v == 0)
     assert (A @ v == 0).all()
 
-
 def test_kernel_vector_exists_3x3():
     GF = galois.GF(7)
     # Rank-deficient 3x3 matrix
@@ -28,7 +27,6 @@ def test_kernel_vector_exists_3x3():
     assert not np.all(v == 0)
     assert (A @ v == 0).all()
 
-
 def test_random_singular_matrix_kernel():
     GF = galois.GF(3)
     # Construct a singular matrix with dependent rows
@@ -39,7 +37,6 @@ def test_random_singular_matrix_kernel():
     assert v.shape == (3,)
     assert not np.all(v == 0)
     assert (A @ v == 0).all()
-
 
 def test_invertible_matrix_raises():
     GF = galois.GF(5)
