@@ -49,3 +49,35 @@ def test_invertible_matrix_raises():
     else:
         # If we got here, verify A v != 0 (since kernel is trivial)
         assert not (A @ v == 0).all()
+
+def test_large_singular_matrix():
+    GF = galois.GF(7)
+    # Create a 5x5 singular matrix with rank 3
+    A = GF([[1, 2, 3, 4, 5],
+            [2, 4, 6, 1, 3],
+            [3, 6, 2, 5, 1],
+            [1, 2, 3, 4, 5],  # duplicate of first row
+            [0, 0, 0, 0, 0]])  # zero row
+    
+    v = solve(A, GF)
+    assert v.shape == (5,)
+    assert not np.all(v == 0)
+    assert (A @ v == 0).all()
+
+def test_zero_matrix():
+    GF = galois.GF(3)
+    A = GF([[0, 0], [0, 0]])  # Zero matrix
+    
+    v = solve(A, GF)
+    assert v.shape == (2,)
+    assert not np.all(v == 0)
+    assert (A @ v == 0).all()
+
+def test_scalar_wiedemann_polynomial():
+    GF = galois.GF(5)
+    A = GF([[1, 2], [2, 4]])  # Singular matrix
+    
+    poly = scalar_wiedemann(A, GF)
+    assert isinstance(poly, galois.Poly)
+    assert poly.field == GF
+    assert poly.degree >= 0

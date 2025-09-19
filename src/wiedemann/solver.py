@@ -21,29 +21,10 @@ def solve_homogeneous(A, field, m=2, max_iter=None, max_retries=5):
     n = A.shape[0]
 
     for attempt in range(max_retries):
-        # Run Block Wiedemann + BBM
-        Q, U, V = block_wiedemann(A, field, m=m, max_iter=max_iter)
-        d = len(Q) - 1
-
-        # Build Krylov blocks: [V, A V, ..., A^d V]
-        krylov = [V]
-        for _ in range(1, d + 1):
-            krylov.append(A @ krylov[-1])
-
-        # Reconstruct Y = sum_{i=0..d} (A^i V) Q_i (n x m)
-        Y = field.Zeros((n, m))
-        for i in range(d + 1):
-            Y += krylov[i] @ Q[i]
-
-        # Try to find non-zero z with A Y z = 0, then x = Y z is a candidate
-        AY = A @ Y
-        z = null_space_mod_p(AY, field)
-        if z is not None:
-            z = field(np.array(z).reshape(-1, 1))
-            x = Y @ z
-            x = field(x.reshape(-1))
-            if not np.all(x == 0) and (A @ x == 0).all():
-                return x
+        # Run Block Wiedemann - it returns a kernel vector directly
+        x = block_wiedemann(A, field, m=m, n=m, max_iter=max_iter)
+        if x is not None and not np.all(x == 0) and (A @ x == 0).all():
+            return x
 
     # Fallback: use scalar Wiedemann to produce a kernel vector (still Wiedemann-based)
     # try:

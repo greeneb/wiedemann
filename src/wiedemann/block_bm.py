@@ -1,3 +1,19 @@
+"""
+Block Berlekamp-Massey Algorithm Implementation
+
+This module implements the block version of the Berlekamp-Massey algorithm
+for finding recurrence relations in block sequences. This is used in the
+block Wiedemann algorithm for solving large linear systems over finite fields.
+
+The block Berlekamp-Massey algorithm finds coefficient matrices that define
+a recurrence relation for a sequence of matrices, which is more efficient
+than applying the scalar algorithm to each element.
+
+References:
+- Kaltofen, E. (1993). Analysis of Coppersmith's block Wiedemann algorithm.
+- Coppersmith, D. (1994). Solving homogeneous linear equations over GF(2).
+"""
+
 import galois
 import numpy as np
 
